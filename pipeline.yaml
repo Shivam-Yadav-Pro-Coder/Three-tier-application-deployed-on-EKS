@@ -1,0 +1,62 @@
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  IMAGE_NAME: 'khana-khajana'
+  TAG: '$(Build.BuildId)'
+  AWS_ACCOUNT_ID: '571600838693'
+  AWS_REGION: 'eu-north-1'
+  ECR_REPO: '571600838693.dkr.ecr.eu-north-1.amazonaws.com/khana-khajana'
+  KV_NAME: 'khana-khajana-kv123'
+  SECRET_NAME: 'DJANGO-SECRET-KEY'
+  # No SECRET_VALUE needed anymore
+
+stages:
+- stage: BuildAndPush
+  displayName: Build Docker & Push to ECR
+  jobs:
+  - job: Build
+    displayName: Build and Push Docker
+    pool:
+      name: demo-agent
+    steps:
+    # 1️⃣ Build Docker image
+    - script: |
+        docker build -t $(IMAGE_NAME):$(TAG) .
+      displayName: Build Docker image
+
+    # 2️⃣ Login to AWS ECR
+    - script: |
+        aws ecr get-login-password --region $(AWS_REGION) | \
+        docker login --username AWS --password-stdin \
+        $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
+      displayName: AWS ECR Login
+
+    # 3️⃣ Tag & Push image
+    - script: |
+        docker tag $(IMAGE_NAME):$(TAG) $(ECR_REPO):$(TAG)
+        docker push $(ECR_REPO):$(TAG)
+      displayName: Push Docker image to ECR
+
+    # 4️⃣ Generate strong secret and set in Azure Key Vault
+    - task: AzureCLI@2
+      displayName: Generate and Set Django Secret Key in Key Vault
+      inputs:
+        azureSubscription: 'SP-KhanaKhajana'
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          echo "Generating a strong random Django SECRET_KEY..."
+          GENERATED_SECRET=$(python -c "import secrets; print(secrets.token_urlsafe(50))")
+          
+          echo "Updating secret $(SECRET_NAME) in Key Vault $(KV_NAME)..."
+          az keyvault secret set \
+            --vault-name $(KV_NAME) \
+            --name $(SECRET_NAME) \
+            --value "$GENERATED_SECRET"
+          
+          echo "✅ Neww strong secret successfully set in Key Vault"
+          echo "##vso[task.setvariable variable=DJANGO_SECRET_KEY;issecret=true]$GENERATED_SECRET"  # Optional: Makes it available (masked) for later tasks if neede`d

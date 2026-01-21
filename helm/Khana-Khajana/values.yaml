@@ -1,0 +1,27 @@
+image:
+  repository: 571600838693.dkr.ecr.eu-north-1.amazonaws.com/khana-khajana
+  tag: latest
+  pullPolicy: Always
+
+containerPort: 8000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: khana-khajana.local
+  path: /
+  pathType: Prefix
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+

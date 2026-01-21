@@ -1,0 +1,134 @@
+<nav class="bg-gradient-to-r from-orange-600 to-orange-400 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center">
+        <a
+          href={% url "home" %}
+          class="text-white text-2xl font-extrabold tracking-wide no-underline"
+          >Khana Khajana</a
+        >
+      </div>
+      <div class="hidden md:flex items-center space-x-6">
+        <a
+          href={% url "home" %}
+          class="{% if request.path == '/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+          >Home</a
+        >
+        {% if not user.is_superuser and user.driver_profile.role != "driver"   %}
+          <a
+            href={% url "cuisine" %}
+            class="{% if request.path == '/cuisine/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+            >Cuisine</a
+          >
+          <a
+            href={% url "aboutus" %}
+            class="{% if request.path == '/aboutus/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+            >About Us</a
+          >
+          <a
+            href={% url "contact" %}
+            class="{% if request.path == '/contact/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+            >Contact</a
+          >
+        {% endif %}
+        {% if user.is_authenticated %}
+        {% if not user.is_superuser and user.driver_profile.role != "driver" %}
+            <a href="{% url 'mycart' %}"
+            class="{% if request.path == '/mycart/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+            >My Cart</a>
+            {% endif %}
+            <a href="{% url 'dashboard' %}"
+            class="{% if request.path == '/dashboard/' or request.path == '/adminapp/' or request.path == '/adminapp/ordersCompleted/'  or request.path == '/adminapp/pendingOrders/' or request.path == '/adminapp/addCusine/' or request.path == '/adminapp/revenue/' or request.path == '/myprofile/' or request.path == '/myorders/' or request.path|slice:':9' == '/myorders' or request.path|slice:':23' == '/adminapp/pendingOrders' or request.path == '/cancelledOrders/' or request.path == '/adminapp/addDriver/' or request.path == '/driver/'  or request.path == '/driver/pendingDelivery/'  or request.path == '/driver/ordersdelivered/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold flex mx-2{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline flex mx-2 {% endif %}"
+            >
+            <div class="flex justify-center items-center space-x-2">
+              <p class="mr-2">Dashboard</p>
+              {% for account in user.socialaccount_set.all %}
+                {% if account.provider == "google" %}
+                  <img
+                    src="{{ account.extra_data.picture }}"
+                      alt="Profile Photo"
+                      class="w-6 h-6 rounded-full"
+                  />
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            </a>
+            
+            <a href="{% url 'account_logout' %}"
+            class="{% if request.path == '/accounts/login/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+            >Logout</a>
+        {% else %}
+            <a href="{% url 'account_login' %}"
+            class="{% if request.path == '/accounts/login/' or request.path == '/accounts/signup/' %}bg-orange-700 text-white px-3 py-2 rounded-md text-sm font-bold{% else %}text-white font-medium hover:text-orange-200 px-3 py-2 rounded-md text-sm transition duration-300 no-underline{% endif %}"
+            >
+            {% if request.path == '/accounts/signup/' %}
+            Sign up
+            {% elif request.path == '/accounts/login/' %}
+            Login
+            {% else %}
+            Login
+            {% endif %}
+            </a>
+        {% endif %}
+      </div>
+      <div class="md:hidden flex items-center">
+        <button
+          class="text-white text-xl focus:outline-none"
+          id="mobile-menu-button"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="md:hidden bg-orange-500" id="mobile-menu" style="display: none">
+    <a
+      href={% url "home" %}
+      class="block text-white text-xl hover:bg-orange-400 px-4 py-2 transition duration-300 no-underline"
+      >Home</a
+    >
+    <a
+      href={% url "cuisine" %}
+      class="block text-white text-xl hover:bg-orange-400 px-4 py-2 transition duration-300 no-underline"
+      >Food</a
+    >
+    <a
+      href={% url "aboutus" %}
+      class="block text-white text-xl hover:bg-orange-400 px-4 py-2 transition duration-300 no-underline"
+      >About Us</a
+    >
+    <a
+      href={% url "contact" %}
+      class="block text-white text-xl hover:bg-orange-400 px-4 py-2 transition duration-300 no-underline"
+      >Contact</a>
+    <a
+      href={% url "account_login" %}
+      class="block text-white text-xl hover:bg-orange-400 px-4 py-2 transition duration-300 no-underline"
+      >Login</a>
+      
+  </div>
+</nav>
+<script>
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const menu = document.getElementById('mobile-menu');
+      if (menu.style.display === 'none') {
+        menu.style.display = 'block';
+      } else {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
